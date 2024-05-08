@@ -1,3 +1,4 @@
+using Application.News;
 using AutoMapper;
 
 namespace Application.Core
@@ -7,6 +8,8 @@ namespace Application.Core
         public MappingProfiles()
         {
             CreateMap<Domain.News, Domain.News>();
+            CreateMap<Domain.News, NewsDto>()
+            .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.Category.Name));
         }
     }
 }

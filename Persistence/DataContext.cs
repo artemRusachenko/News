@@ -10,5 +10,6 @@ namespace Persistence
         }
 
         public DbSet<News> News { get; set; }
+        public DbSet<Category> Categories { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace API.Controllers
     public class NewsController:BaseApiController
     {
         [HttpGet] 
-        public async Task<ActionResult<List<News>>> GetNews()
+        public async Task<ActionResult<List<NewsDto>>> GetNews()
         {
             return await Mediator.Send(new List.Query());
         }

@@ -6,14 +6,27 @@ namespace Persistence
     {
         public static async Task SeedData(DataContext context)
         {
-            if (context.News.Any()) return;
+            if (context.News.Any() && context.Categories.Any()) return;
             
-            var activities = new List<News>
+            var categories = new List<Category>{
+                new Category{
+                    Name="Sport",
+                },
+                new Category{
+                    Name="Politics",
+                },
+                new Category{
+                    Name="Finance",
+                },
+            };
+
+            var news = new List<News>
             {
                 new News
                 {
                     Title = "News 1",
                     Date = DateTimeOffset.UtcNow.AddMonths(-2).AddHours(3),
+                    Description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit",
                     Content = @"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
                      Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
                       Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.
@@ -22,11 +35,13 @@ namespace Persistence
                          Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula,
                           porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis,
                            feugiat a,",
+                    Category = categories[0],
                 },
                 new News
                 {
                     Title = "News 2",
                     Date = DateTimeOffset.UtcNow.AddMonths(-1).AddHours(20).AddDays(-2),
+                    Description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit",
                     Content = @"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
                      Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
                       Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.
@@ -35,11 +50,14 @@ namespace Persistence
                          Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula,
                           porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis,
                            feugiat a,",
+                    Category = categories[1],
+
                 },
                 new News
                 {
                     Title = "News 3",
                     Date = DateTimeOffset.UtcNow.AddDays(-10).AddHours(6),
+                    Description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit",
                     Content = @"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
                                 Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
                                 Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.
@@ -47,12 +65,15 @@ namespace Persistence
                                 imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
                                 Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula,
                                 porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis,
-                                feugiat a,"
+                                feugiat a,",
+                    Category = categories[2],
+
                 },
                 new News
                 {
                     Title = "News 4",
                     Date = DateTimeOffset.UtcNow.AddDays(-5).AddHours(-2),
+                    Description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit",
                     Content = @"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
                                 Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
                                 Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.
@@ -60,11 +81,14 @@ namespace Persistence
                                 imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
                                 Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula,
                                 porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis,
-                                feugiat a,"
+                                feugiat a,",
+                    Category = categories[1],
+
                 },new News
                 {
                     Title = "News 5",
                     Date = DateTimeOffset.UtcNow.AddMonths(-1).AddHours(7),
+                    Description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit",
                     Content = @"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
                      Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
                       Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.
@@ -73,10 +97,11 @@ namespace Persistence
                          Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula,
                           porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis,
                            feugiat a,",
+                    Category = categories[0],
                 }
             };
 
-            await context.News.AddRangeAsync(activities);
+            await context.News.AddRangeAsync(news);
             await context.SaveChangesAsync();
         }
     }
