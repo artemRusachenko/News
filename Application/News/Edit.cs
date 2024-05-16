@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Application.Core;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 using Persistence;
 
@@ -10,12 +8,20 @@ namespace Application.News
 {
     public class Edit
     {
-        public class Command:IRequest
+        public class Command:IRequest<Result<Unit>>
         {
             public Domain.News News{ get; set; }
         }
 
-        public class Handler : IRequestHandler<Command>
+        public class CommandValidator : AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+                RuleFor(x=> x.News).SetValidator(new NewsValidator());
+            }
+        }
+
+        public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
@@ -24,13 +30,19 @@ namespace Application.News
                 _mapper = mapper;
                 _context = context;
             }
-            public async Task Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                 var news = await _context.News.FindAsync(request.News.Id);
 
+                if (news == null) return null;
+
                 _mapper.Map(request.News, news);
 
-                await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync() > 0;
+
+                if(!result) return Result<Unit>.Failure("Failed to edit News");
+
+                return Result<Unit>.Success(Unit.Value);
             }
         }
     }

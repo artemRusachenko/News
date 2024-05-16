@@ -1,6 +1,6 @@
 namespace Application.News
 {
-    public class NewsDto
+    public class GetNewsDto
     {
         public Guid Id { get; set; }
         public DateTimeOffset Date { get; set; }

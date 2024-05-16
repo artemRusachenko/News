@@ -1,17 +1,24 @@
 import { Button, Item, Label, Segment } from "semantic-ui-react";
-import { News } from "../../../app/models/news";
+import { SyntheticEvent, useState } from "react";
+import { useStore } from "../../../app/stores/store";
+import { observer } from "mobx-react-lite";
+import { Link } from "react-router-dom";
 
-interface Props {
-  news: News[];
-  selectNews: (id: string) => void;
-  deleteNews: (id: string) => void;
+export default observer(function NewsList() {
+  const { newsStore } = useStore();
+  const { deleteNews, newsByDate, loading } = newsStore;
 
-}
-export default function NewsList({ news, selectNews, deleteNews}: Props) {
+  const [target, setTarget] = useState("");
+
+  function handleNewsDelete(e: SyntheticEvent<HTMLButtonElement>, id: string) {
+    setTarget(e.currentTarget.name);
+    deleteNews(id);
+  }
+
   return (
     <Segment>
       <Item.Group divided>
-        {news.map((n) => (
+        {newsByDate.map((n) => (
           <Item key={n.id}>
             <Item.Content>
               <Item.Header as="a">{n.title}</Item.Header>
@@ -20,8 +27,21 @@ export default function NewsList({ news, selectNews, deleteNews}: Props) {
                 <div>{n.description}</div>
               </Item.Description>
               <Item.Extra>
-              <Button onClick={() => selectNews(n.id)} floated="right" content="view" color="blue"></Button>
-              <Button onClick={() => deleteNews(n.id)} floated="right" content="delete" color="red"></Button>
+                <Button
+                  as={Link}
+                  to={`/news/${n.id}`}
+                  floated="right"
+                  content="view"
+                  color="blue"
+                ></Button>
+                <Button
+                  name={n.id}
+                  loading={loading && target === n.id}
+                  onClick={(e) => handleNewsDelete(e, n.id)}
+                  floated="right"
+                  content="delete"
+                  color="red"
+                ></Button>
                 <Label basic content={n.categoryName} />
               </Item.Extra>
             </Item.Content>
@@ -30,4 +50,4 @@ export default function NewsList({ news, selectNews, deleteNews}: Props) {
       </Item.Group>
     </Segment>
   );
-}
+});

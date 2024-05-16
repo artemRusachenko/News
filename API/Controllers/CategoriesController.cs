@@ -11,5 +11,11 @@ namespace API.Controllers
         {
             return await Mediator.Send(new List.Query());
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteCategory(Guid id){
+            await Mediator.Send(new Delete.Command{Id = id});
+            return Ok();
+        }
     }
 }

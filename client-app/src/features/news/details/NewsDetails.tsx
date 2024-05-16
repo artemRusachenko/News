@@ -1,13 +1,21 @@
 import { Button, Card } from "semantic-ui-react";
-import { News } from "../../../app/models/news";
+import { useStore } from "../../../app/stores/store";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
+import { observer } from "mobx-react-lite";
+import { Link, useParams } from "react-router-dom";
+import { useEffect } from "react";
 
-interface Props {
-  news: News;
-  cancelSelectNews: () => void;
-  openForm: (id:string) => void;
-}
+export default observer(function newsDetails() {
+  const { newsStore } = useStore();
+  const { selectedNews: news, loadingInitial, loadNewsItem } = newsStore;
+  const { id } = useParams();
 
-export default function newsDetails({ news, cancelSelectNews, openForm }: Props) {
+  useEffect(() => {
+    if (id) loadNewsItem(id);
+  }, [id, loadNewsItem]);
+
+  if (loadingInitial || !news) return <LoadingComponent />;
+
   return (
     <Card fluid>
       <Card.Content>
@@ -19,10 +27,19 @@ export default function newsDetails({ news, cancelSelectNews, openForm }: Props)
       </Card.Content>
       <Card.Content extra>
         <Button.Group width="2">
-          <Button onClick={() => openForm(news.id)} basic color="blue" content="Edit" />
-          <Button onClick={cancelSelectNews} basic color="red" content="Delete" />
+          <Button
+            as={Link}
+            to={`/manage/${news.id}`}
+            basic
+            color="blue"
+            content="Edit"
+          />
+          {/* onClick={() => openForm(news.id)} */}
+          <Button as={Link}
+            to={`/`} basic color="red" content="Cancel" />
+          {/* onClick={cancellSelectedNews}  */}
         </Button.Group>
       </Card.Content>
     </Card>
   );
-}
+});

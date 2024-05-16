@@ -1,3 +1,6 @@
+using Application.Core;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -6,20 +9,27 @@ namespace Application.News
 {
     public class Details
     {
-        public class Query : IRequest<Domain.News>{
+        public class Query : IRequest<Result<GetNewsDto>>{
             public Guid Id { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Domain.News>
+        public class Handler : IRequestHandler<Query, Result<GetNewsDto>>
         {
             private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IMapper _mapper;
+            public Handler(DataContext context, IMapper mapper)
             {
+                _mapper = mapper;
                 _context = context;
             }
-            public async Task<Domain.News> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<GetNewsDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                return await _context.News.FindAsync(request.Id);
+                var newsItem = await _context.News
+                    .Where(x => x.Id == request.Id) // Or whatever condition you need
+                    .ProjectTo<GetNewsDto>(_mapper.ConfigurationProvider)
+                    .SingleOrDefaultAsync(cancellationToken);
+
+                return Result<GetNewsDto>.Success(newsItem);
             }
         }
     }

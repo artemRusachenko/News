@@ -7,34 +7,32 @@ namespace API.Controllers
     public class NewsController:BaseApiController
     {
         [HttpGet] 
-        public async Task<ActionResult<List<NewsDto>>> GetNews()
+        public async Task<IActionResult> GetNews()
         {
-            return await Mediator.Send(new List.Query());
+            return HandleResult(await Mediator.Send(new List.Query()));
         }
         
         [HttpGet("{id}")] 
-        public async Task<ActionResult<News>> GetNewsById(Guid id)
+        public async Task<IActionResult> GetNewsById(Guid id)
         {
-            return await Mediator.Send(new Details.Query{Id = id});
+
+            return HandleResult(await Mediator.Send(new Details.Query{Id = id}));
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateNews(News news){
-            await Mediator.Send(new Create.Command{News=news});
-            return Ok();
+            return HandleResult(await Mediator.Send(new Create.Command{News=news}));
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> EditNews(Guid id, News news){
             news.Id = id;
-            await Mediator.Send(new Edit.Command{News = news});
-            return Ok();
+            return HandleResult(await Mediator.Send(new Edit.Command{News = news}));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNews(Guid id){
-            await Mediator.Send(new Delete.Command{Id = id});
-            return Ok();
+            return HandleResult(await Mediator.Send(new Delete.Command{Id = id}));
         }
 
     }

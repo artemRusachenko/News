@@ -1,53 +1,28 @@
 import { Grid } from "semantic-ui-react";
-import { News } from "../../../app/models/news";
 import NewsList from "./NewsList";
-import NewsForm from "../form/NewsForm";
-import NewsDetails from "../details/NewsDetails";
+import { useStore } from "../../../app/stores/store";
+import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
 
-interface Props {
-  news: News[];
-  selectedNews: News | undefined;
-  selectNews: (id: string) => void;
-  cancelSelectNews: () => void;
-  editMode: boolean;
-  openForm: (id: string) => void;
-  closeForm: () => void;
-  createOrEdit: (news: News) => void;
-  deleteNews: (id: string) => void;
-}
+export default observer(function NewsDashboard() {
+  const { newsStore } = useStore();
+  const {loadNews, newsRegistry} = newsStore
 
-export default function NewsDashboard({
-  news,
-  selectedNews,
-  selectNews,
-  cancelSelectNews,
-  editMode,
-  openForm,
-  closeForm,
-  createOrEdit,
-  deleteNews,
-}: Props) {
+  useEffect(() => {
+    if(newsRegistry.size <=1) loadNews();
+  }, [loadNews, newsRegistry.size]);
+  
+  if (newsStore.loadingInitial) return <LoadingComponent />;
+
   return (
     <Grid>
       <Grid.Column width="10">
-        <NewsList news={news} selectNews={selectNews} deleteNews={deleteNews} />
+        <NewsList />
       </Grid.Column>
       <Grid.Column width="6">
-        {selectedNews && !editMode&&  (
-          <NewsDetails
-            news={selectedNews}
-            cancelSelectNews={cancelSelectNews}
-            openForm={openForm}
-          />
-        )}
-        {editMode && (
-          <NewsForm
-            closeForm={closeForm}
-            news={selectedNews}
-            createOrEdit={createOrEdit}
-          />
-        )}
+        <h2>Filters</h2>
       </Grid.Column>
     </Grid>
   );
-}
+});

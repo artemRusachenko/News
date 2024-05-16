@@ -1,15 +1,14 @@
 import { Button, Container, Input, Menu } from "semantic-ui-react";
+// import { useStore } from "../stores/store";
+import { Link } from "react-router-dom";
 // import { Link, NavLink } from "react-router-dom";
 
-interface Props{
-  openForm:() => void;
-}
-
-export default function NavBar({openForm} : Props) {
+export default function NavBar() {
+  // const {newsStore} = useStore();
   return (
     <Menu pointing>
       <Container>
-        <Menu.Item>
+        <Menu.Item as={Link} to="/">
           <img
             src="/assets/logo.png"
             alt="logo"
@@ -20,8 +19,10 @@ export default function NavBar({openForm} : Props) {
           <Input icon="search" placeholder="Search..." size="large" />
         </Menu.Item>
         <Menu.Item>
-          <Button onClick={openForm} to="/createNews" positive content="Create News" />
+          <Button as={Link} to="/createNews" positive content="Create News" />
+          {/* onClick={() => newsStore.openForm()}  */}
         </Menu.Item>
+        <Menu.Item as={Link} to="errors" name="Erorrs"/>
         <Menu.Item position="right">
           <Button
             primary
