@@ -25,7 +25,7 @@ namespace Application.News
             public async Task<Result<GetNewsDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var newsItem = await _context.News
-                    .Where(x => x.Id == request.Id) // Or whatever condition you need
+                    .Where(x => x.Id == request.Id)
                     .ProjectTo<GetNewsDto>(_mapper.ConfigurationProvider)
                     .SingleOrDefaultAsync(cancellationToken);
 

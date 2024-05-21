@@ -2,6 +2,7 @@ using Application.Core;
 using AutoMapper;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.News
@@ -10,7 +11,7 @@ namespace Application.News
     {
         public class Command:IRequest<Result<Unit>>
         {
-            public Domain.News News{ get; set; }
+            public CreateNewsDto News{ get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
@@ -32,11 +33,14 @@ namespace Application.News
             }
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var news = await _context.News.FindAsync(request.News.Id);
+                var newNews = await _context.News.FindAsync(request.News.Id);
 
-                if (news == null) return null;
+                if (newNews == null) return null;
 
-                _mapper.Map(request.News, news);
+                _mapper.Map(request.News, newNews);
+
+                var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == request.News.CategoryId);
+                newNews.Category = category;
 
                 var result = await _context.SaveChangesAsync() > 0;
 

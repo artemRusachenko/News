@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { News } from "../models/news";
 import agent from "../api/agent";
-import { v4 as uuid } from "uuid";
+import { NewNews } from "../models/newNews";
 
 export default class NewsStore {
   newsRegistry = new Map<string, News>();
@@ -16,7 +16,7 @@ export default class NewsStore {
 
   get newsByDate() {
     return Array.from(this.newsRegistry.values()).sort(
-      (a, b) => Date.parse(b.date) - Date.parse(a.date)
+      (a, b) =>b.date.getTime() - a.date.getTime()
     );
   }
 
@@ -25,7 +25,7 @@ export default class NewsStore {
     try {
       const news = await agent.News.list();
       news.forEach((n) => {
-        runInAction(() => this.newsRegistry.set(n.id, n));
+        this.setNews(n);
       });
       this.setLoadingInitial(false);
     } catch (error) {
@@ -43,7 +43,7 @@ export default class NewsStore {
       this.setLoadingInitial(true);
       try {
         news = await agent.News.details(id);
-        this.newsRegistry.set(news.id, news);
+        this.setNews(news);
         runInAction(() => {
           this.selectedNews = news;
         });
@@ -56,6 +56,11 @@ export default class NewsStore {
     }
   };
 
+  private setNews = (news: News) => {
+    news.date = new Date(news.date);
+    this.newsRegistry.set(news.id, news);
+  };
+
   private getNews = (id: string) => {
     return this.newsRegistry.get(id);
   };
@@ -64,28 +69,20 @@ export default class NewsStore {
     this.loadingInitial = state;
   };
 
-  // selectNews = (id: string) => {
-  //   this.selectedNews = this.newsRegistry.get(id);
-  // };
 
-  // cancellSelectedNews = () => {
-  //   this.selectedNews = undefined;
-  // };
-
-  // openForm = (id?: string) => {
-  //   id ? this.selectNews(id) : this.cancellSelectedNews();
-  //   this.editMode = true;
-  // };
-
-  // closeForm = () => {
-  //   this.editMode = false;
-  // };
-
-  createNews = async (news: News) => {
+  createNews = async (news: News, categoryId: string) => {
     this.loading = true;
-    news.id = uuid();
+    const newNews: NewNews = {
+      id: news.id,
+      date: news.date,
+      title: news.title,
+      description: news.description,
+      content: news.content,
+      categoryId: categoryId,
+    };
+    console.log(newNews);
     try {
-      await agent.News.create(news);
+      await agent.News.create(newNews);
       runInAction(() => {
         this.newsRegistry.set(news.id, news);
         this.selectedNews = news;
@@ -100,10 +97,19 @@ export default class NewsStore {
     }
   };
 
-  updateNews = async (news: News) => {
+  updateNews = async (news: News, categoryId: string) => {
     this.loading = true;
+    const newNews: NewNews = {
+      id: news.id,
+      date: news.date,
+      title: news.title,
+      description: news.description,
+      content: news.content,
+      categoryId: categoryId,
+    };
+    console.log(newNews);
     try {
-      await agent.News.update(news);
+      await agent.News.update(newNews);
       runInAction(() => {
         this.newsRegistry.set(news.id, news);
         this.selectedNews = news;

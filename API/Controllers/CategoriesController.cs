@@ -7,9 +7,9 @@ namespace API.Controllers
     public class CategoriesController : BaseApiController
     {
         [HttpGet] 
-        public async Task<ActionResult<List<Category>>> GetCategories()
+        public async Task<IActionResult> GetCategories()
         {
-            return await Mediator.Send(new List.Query());
+            return HandleResult(await Mediator.Send(new List.Query()));
         }
 
         [HttpDelete("{id}")]

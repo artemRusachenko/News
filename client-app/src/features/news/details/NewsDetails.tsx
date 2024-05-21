@@ -4,6 +4,7 @@ import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { observer } from "mobx-react-lite";
 import { Link, useParams } from "react-router-dom";
 import { useEffect } from "react";
+import { format } from "date-fns";
 
 export default observer(function newsDetails() {
   const { newsStore } = useStore();
@@ -21,7 +22,7 @@ export default observer(function newsDetails() {
       <Card.Content>
         <Card.Header>{news.title}</Card.Header>
         <Card.Meta>
-          <span>{news.date}</span>
+          <span>{format(news.date, 'dd MMM yyyy h:mm aa')}</span>
         </Card.Meta>
         <Card.Description>{news.content}</Card.Description>
       </Card.Content>
@@ -34,10 +35,8 @@ export default observer(function newsDetails() {
             color="blue"
             content="Edit"
           />
-          {/* onClick={() => openForm(news.id)} */}
           <Button as={Link}
             to={`/`} basic color="red" content="Cancel" />
-          {/* onClick={cancellSelectedNews}  */}
         </Button.Group>
       </Card.Content>
     </Card>

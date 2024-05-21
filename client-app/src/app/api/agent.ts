@@ -3,6 +3,8 @@ import { News as NewsItem } from "../models/news";
 import { toast } from "react-toastify";
 import { router } from "../rooter/Routes";
 import { store } from "../stores/store";
+import { Category } from "../models/categoty";
+import { NewNews } from "../models/newNews";
 
 const sleep = (delay: number) => {
   return new Promise((resolve) => {
@@ -62,16 +64,6 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-// axios.interceptors.response.use(async (response) => {
-//   try {
-//     await sleep(1000);
-//     return response;
-//   } catch (error) {
-//     console.log(error);
-//     return await Promise.reject(error);
-//   }
-// });
-
 const responseBody = <T>(response: AxiosResponse<T>) => response.data;
 
 const requests = {
@@ -85,13 +77,18 @@ const requests = {
 const News = {
   list: () => requests.get<NewsItem[]>("/news"),
   details: (id: string) => requests.get<NewsItem>(`/news/${id}`),
-  update: (news: NewsItem) => requests.put<void>(`/news/${news.id}`, news),
-  create: (news: NewsItem) => requests.post<void>(`/news`, news),
+  update: (news: NewNews) => requests.put<void>(`/news/${news.id}`, news),
+  create: (news: NewNews) => requests.post<void>(`/news`, news),
   delete: (id: string) => requests.del<void>(`/news/${id}`),
 };
 
+const Categories = {
+   list: () => requests.get<Category[]>("/categories"),
+}
+
 const agent = {
   News,
+  Categories,
 };
 
 export default agent;

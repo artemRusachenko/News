@@ -1,5 +1,6 @@
 using Application.News;
 using AutoMapper;
+using Domain;
 
 namespace Application.Core
 {
@@ -10,7 +11,8 @@ namespace Application.Core
             CreateMap<Domain.News, Domain.News>();
             CreateMap<Domain.News, GetNewsDto>()
             .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.Category.Name));
-            // CreateMap<CreateNewsDto, Domain.News>()
+            CreateMap<CreateNewsDto, Domain.News>();
+            CreateMap<Category, GetCategoryDto>();
         }
     }
 }
