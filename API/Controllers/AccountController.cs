@@ -13,9 +13,12 @@ namespace API.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly TokenService _tokenService;
-        public AccountController(UserManager<AppUser> userManager, TokenService tokenService){
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public AccountController(UserManager<AppUser> userManager, TokenService tokenService, RoleManager<IdentityRole> roleManager){
             _tokenService = tokenService;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [HttpPost("login")]
@@ -25,13 +28,17 @@ namespace API.Controllers
             if(user==null) return Unauthorized();
 
             var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+            
+            var token = await _tokenService.CreateToken(user);
 
             if(result)
             {
+                await _userManager.AddToRoleAsync(user, "User");
+
                 return new UserDto
                 {
                     DisplayName = user.DisplayName,
-                    Token = _tokenService.CreateToken(user),
+                    Token = token,
                     UserName = user.UserName,
                 };
             }
@@ -60,15 +67,22 @@ namespace API.Controllers
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
-            if(result.Succeeded){
-                return new UserDto{
-                    DisplayName = user.DisplayName,
-                    Token = _tokenService.CreateToken(user),
-                    UserName = user.UserName,
-                };
+            if(!result.Succeeded) return BadRequest(result.Errors);
+
+            if (!await _roleManager.RoleExistsAsync("User"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("User"));
             }
 
-            return BadRequest(result.Errors);
+            await _userManager.AddToRoleAsync(user, "User");
+
+            var token = await _tokenService.CreateToken(user);
+            return new UserDto
+            {
+                DisplayName = user.DisplayName,
+                Token = token,
+                UserName = user.UserName,
+            };
         }
     }
 }

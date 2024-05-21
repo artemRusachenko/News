@@ -13,6 +13,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new List.Query()));
         }
         [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")] 
         public async Task<IActionResult> GetNewsById(Guid id)
         {

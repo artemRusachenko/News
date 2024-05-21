@@ -2,6 +2,7 @@ using System.Text;
 using API.Services;
 using Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
 
@@ -10,10 +11,10 @@ namespace API.Extensions
     public static class IdentityServiceExtensions
     {
         public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration config){
-            services.AddIdentityCore<AppUser>(opt =>{
+            services.AddIdentity<AppUser, IdentityRole>(opt =>{
                 opt.Password.RequireNonAlphanumeric = false;
                 
-            }).AddEntityFrameworkStores<DataContext>();
+            }).AddEntityFrameworkStores<DataContext>().AddDefaultTokenProviders();
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
 
