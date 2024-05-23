@@ -6,6 +6,7 @@ import NewsDetails from "../../features/news/details/NewsDetails";
 import TestErrors from "../../features/errors/TestError";
 import NotFound from "../../features/errors/NotFound";
 import ServerError from "../../features/errors/ServerError";
+import LoginForm from "../../features/users/LoginForm";
 
 export const routes: RouteObject[] = [
   {
@@ -19,8 +20,7 @@ export const routes: RouteObject[] = [
       { path: "news/:id", element: <NewsDetails /> },
       { path: "createNews", element: <NewsForm key='create'/> },
       { path: "manage/:id", element: <NewsForm key='manage'/> },
-      //       { path: "manage/:id", element: <ActivityForm key="manage" /> },
-      //       { path: "profiles/:userName", element: <ProfilePage /> },
+      {path: 'login', element: <LoginForm/>},
       { path: "errors", element: <TestErrors /> },
       //     ],
       //   },

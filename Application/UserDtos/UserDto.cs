@@ -5,5 +5,7 @@ namespace Application.UserDtos
         public string DisplayName { get; set; }
         public string Token{ get; set; }
         public string UserName { get; set; }
+        public ICollection<string> Roles { get; set; }
+
     }
 }

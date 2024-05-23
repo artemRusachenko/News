@@ -11,10 +11,12 @@ namespace API.Extensions
     public static class IdentityServiceExtensions
     {
         public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration config){
-            services.AddIdentity<AppUser, IdentityRole>(opt =>{
+            services.AddIdentityCore<AppUser>(opt =>{
                 opt.Password.RequireNonAlphanumeric = false;
                 
-            }).AddEntityFrameworkStores<DataContext>().AddDefaultTokenProviders();
+            })
+            .AddRoles<IdentityRole>() // Добавляем поддержку ролей
+            .AddEntityFrameworkStores<DataContext>();//.AddDefaultTokenProviders();
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
 

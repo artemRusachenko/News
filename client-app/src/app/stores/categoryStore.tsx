@@ -18,6 +18,14 @@ export default class CategoryStore {
     }));
   }
 
+  get categories(){
+    return Array.from(this.categoriesRegistry.values()).map((category) => ({
+      id: category.id,
+      name: category.name,
+    }));
+  }
+
+
   loadCategories = async () => {
     this.setLoadingInitial(true);
     try {
@@ -34,7 +42,6 @@ export default class CategoryStore {
 
   selectCategory = (name: any) => {
     this.selectedCategory = Array.from(this.categoriesRegistry.values()).find(category => category.name === name);
-    runInAction(() => console.log(this.selectedCategory));
   };
 
   private setLoadingInitial = (state: boolean) => {

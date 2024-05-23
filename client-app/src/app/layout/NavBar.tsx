@@ -1,14 +1,30 @@
-import { Button, Container, Input, Menu } from "semantic-ui-react";
-// import { useStore } from "../stores/store";
+import {
+  Button,
+  Container,
+  Menu,
+  Image,
+  Label,
+} from "semantic-ui-react";
 import { Link } from "react-router-dom";
-// import { Link, NavLink } from "react-router-dom";
+import { useStore } from "../stores/store";
+import { observer } from "mobx-react-lite";
+import LoginForm from "../../features/users/LoginForm";
+import RegisterForm from "../../features/users/RegisterForm";
+import CategoryList from "../../features/categories/CategoryList";
+import Search from "./Search";
 
-export default function NavBar() {
-  // const {newsStore} = useStore();
+
+export default observer(function NavBar() {
+  const { userStore, modalStore, newsStore } = useStore();
+  const { user, logout, isAdmin } = userStore;
+  const { setPredicate } = newsStore;
+
+
+
   return (
     <Menu pointing>
       <Container>
-        <Menu.Item as={Link} to="/">
+        <Menu.Item as={Link} to="/" onClick={() => setPredicate("categoryId", "")}>
           <img
             src="/assets/logo.png"
             alt="logo"
@@ -16,26 +32,50 @@ export default function NavBar() {
           ></img>
         </Menu.Item>
         <Menu.Item style={{ width: "40%" }}>
-          <Input icon="search" placeholder="Search..." size="large" />
+          <Search/>
         </Menu.Item>
-        <Menu.Item>
-          <Button as={Link} to="/createNews" positive content="Create News" />
-          {/* onClick={() => newsStore.openForm()}  */}
-        </Menu.Item>
-        <Menu.Item as={Link} to="errors" name="Erorrs"/>
-        <Menu.Item position="right">
-          <Button
-            primary
-            content="Sign in"
-            style={{ marginRight: "10px" }}
-          ></Button>
-          <Button
-            primary
-            content="Sign up"
-            style={{ marginRight: "10px" }}
-          ></Button>
-        </Menu.Item>
+        {<CategoryList />}
+        {user ? (
+          <>
+            {isAdmin && (
+              <>
+                <Menu.Item as={Link} to="errors" name="Erorrs" />
+                <Menu.Item>
+                  <Button
+                    as={Link}
+                    to="/createNews"
+                    positive
+                    content="Create News"
+                    onClick={() => setPredicate("categoryId", "")}
+                  />
+                </Menu.Item>
+              </>
+            )}
+            <Menu.Item position="right">
+              <Image src={"assets/user.png"} avatar spaced="right" />
+              <Label>{user?.displayName}</Label>
+              <Menu.Item onClick={logout} text="Logout" icon="power" />
+            </Menu.Item>
+          </>
+        ) : (
+          <>
+            <Menu.Item position="right">
+              <Button
+                onClick={() => modalStore.openModal(<LoginForm />)}
+                primary
+                content="Sign in"
+                style={{ marginRight: "10px" }}
+              ></Button>
+              <Button
+                onClick={() => modalStore.openModal(<RegisterForm />)}
+                primary
+                content="Sign up"
+                style={{ marginRight: "10px" }}
+              ></Button>
+            </Menu.Item>
+          </>
+        )}
       </Container>
     </Menu>
   );
-}
+});

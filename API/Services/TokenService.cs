@@ -12,7 +12,7 @@ namespace API.Services
         private readonly IConfiguration _config;
         private readonly UserManager<AppUser> _userManager;
         public TokenService(IConfiguration config, UserManager<AppUser> userManager){
-            _userManager = userManager;
+           _userManager = userManager;
             _config = config;
         }
         public async Task<string> CreateToken(AppUser user){
@@ -20,7 +20,6 @@ namespace API.Services
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Email, user.Email),
-                //
             };
 
             var roles = await _userManager.GetRolesAsync(user);

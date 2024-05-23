@@ -1,23 +1,19 @@
 using Application.News;
-using Domain;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     public class NewsController:BaseApiController
     {
-        [HttpGet] 
-        public async Task<IActionResult> GetNews()
+        [HttpGet]         
+        public async Task<IActionResult> GetNews([FromQuery]NewsParams newsParams)
         {
-            return HandleResult(await Mediator.Send(new List.Query()));
+            return HandleResult(await Mediator.Send(new List.Query{Params = newsParams}));
         }
-        [Authorize]
-        [Authorize(Roles = "Admin")]
+
         [HttpGet("{id}")] 
         public async Task<IActionResult> GetNewsById(Guid id)
         {
-
             return HandleResult(await Mediator.Send(new Details.Query{Id = id}));
         }
 
@@ -36,6 +32,5 @@ namespace API.Controllers
         public async Task<IActionResult> DeleteNews(Guid id){
             return HandleResult(await Mediator.Send(new Delete.Command{Id = id}));
         }
-
     }
 }

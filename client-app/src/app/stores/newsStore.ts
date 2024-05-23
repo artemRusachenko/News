@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { News } from "../models/news";
 import agent from "../api/agent";
 import { NewNews } from "../models/newNews";
@@ -9,22 +9,53 @@ export default class NewsStore {
   editMode = false;
   loading = false;
   loadingInitial = false;
+  predicate = new Map();
 
   constructor() {
     makeAutoObservable(this);
+
+    reaction(
+      () => this.predicate.keys(),
+      () => {
+        this.newsRegistry.clear();
+        this.loadNews();
+      }
+    );
   }
+
+  get axiosParams() {
+    const params = new URLSearchParams();
+    this.predicate.forEach((value, key) => {
+      params.append(key, value);
+    });
+    return params;
+  }
+
+  setPredicate = (predicate: string, value: string) => {
+    switch (predicate) {
+      case "text":
+        this.predicate.delete("text");
+        this.predicate.set("text", value);
+        break;
+      case "categoryId":
+        this.predicate.delete("text");
+        this.predicate.delete("categoryId");
+        this.predicate.set("categoryId", value);
+        break;
+    }
+  };
 
   get newsByDate() {
     return Array.from(this.newsRegistry.values()).sort(
-      (a, b) =>b.date.getTime() - a.date.getTime()
+      (a, b) => b.date.getTime() - a.date.getTime()
     );
   }
 
   loadNews = async () => {
     this.setLoadingInitial(true);
     try {
-      const news = await agent.News.list();
-      news.forEach((n) => {
+      const news = await agent.News.list(this.axiosParams);
+      news.data.forEach((n) => {
         this.setNews(n);
       });
       this.setLoadingInitial(false);
@@ -68,7 +99,6 @@ export default class NewsStore {
   setLoadingInitial = (state: boolean) => {
     this.loadingInitial = state;
   };
-
 
   createNews = async (news: News, categoryId: string) => {
     this.loading = true;

@@ -1,6 +1,8 @@
+using System.Security.Claims;
 using API.Services;
 using Application.UserDtos;
 using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +17,8 @@ namespace API.Controllers
         private readonly TokenService _tokenService;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(UserManager<AppUser> userManager, TokenService tokenService, RoleManager<IdentityRole> roleManager){
+        public AccountController(UserManager<AppUser> userManager, TokenService tokenService, RoleManager<IdentityRole> roleManager)
+        {
             _tokenService = tokenService;
             _userManager = userManager;
             _roleManager = roleManager;
@@ -33,13 +36,14 @@ namespace API.Controllers
 
             if(result)
             {
-                await _userManager.AddToRoleAsync(user, "User");
+                var roles = await _userManager.GetRolesAsync(user);
 
                 return new UserDto
                 {
                     DisplayName = user.DisplayName,
                     Token = token,
                     UserName = user.UserName,
+                    Roles = roles
                 };
             }
 
@@ -47,16 +51,17 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto){
             if(await _userManager.Users.AnyAsync(x => x.UserName == registerDto.UserName))
             {
-                return BadRequest("Username is already taken");
+                ModelState.AddModelError("userName", "user name taken");
+                return ValidationProblem(ModelState);
             }
 
             if(await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
             {
-                return BadRequest("Email is already taken");
+                ModelState.AddModelError("email", "Email taken");
+                return ValidationProblem(ModelState);
             }
 
             var user = new AppUser{
@@ -76,12 +81,32 @@ namespace API.Controllers
 
             await _userManager.AddToRoleAsync(user, "User");
 
+            var roles = await _userManager.GetRolesAsync(user);
+
             var token = await _tokenService.CreateToken(user);
             return new UserDto
             {
                 DisplayName = user.DisplayName,
                 Token = token,
                 UserName = user.UserName,
+                Roles = roles,
+            };
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<UserDto>> GetCurrentUser(){
+            var user = await _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var token = await _tokenService.CreateToken(user);
+            return new UserDto
+            {
+                DisplayName = user.DisplayName,
+                Token = token,
+                UserName = user.UserName,
+                Roles = roles
             };
         }
     }

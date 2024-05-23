@@ -6,8 +6,9 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 
 export default observer(function NewsList() {
-  const { newsStore } = useStore();
+  const { newsStore, userStore } = useStore();
   const { deleteNews, newsByDate, loading } = newsStore;
+  const { isAdmin } = userStore;
 
   const [target, setTarget] = useState("");
 
@@ -16,6 +17,8 @@ export default observer(function NewsList() {
     deleteNews(id);
   }
 
+  if(newsByDate.length === 0) return <h1>There is no news</h1>
+
   return (
     <Segment>
       <Item.Group divided>
@@ -23,7 +26,7 @@ export default observer(function NewsList() {
           <Item key={n.id}>
             <Item.Content>
               <Item.Header as="a">{n.title}</Item.Header>
-              <Item.Meta>{format(n.date, 'dd MMM yyyy h:mm aa')}</Item.Meta>
+              <Item.Meta>{format(n.date, "dd MMM yyyy h:mm aa")}</Item.Meta>
               <Item.Description>
                 <div>{n.description}</div>
               </Item.Description>
@@ -35,14 +38,16 @@ export default observer(function NewsList() {
                   content="view"
                   color="blue"
                 ></Button>
-                <Button
-                  name={n.id}
-                  loading={loading && target === n.id}
-                  onClick={(e) => handleNewsDelete(e, n.id)}
-                  floated="right"
-                  content="delete"
-                  color="red"
-                ></Button>
+                {isAdmin && (
+                  <Button
+                    name={n.id}
+                    loading={loading && target === n.id}
+                    onClick={(e) => handleNewsDelete(e, n.id)}
+                    floated="right"
+                    content="delete"
+                    color="red"
+                  ></Button>
+                )}
                 <Label basic content={n.categoryName} />
               </Item.Extra>
             </Item.Content>
